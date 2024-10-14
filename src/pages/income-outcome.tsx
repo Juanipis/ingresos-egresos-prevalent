@@ -2,15 +2,15 @@ import { InferGetServerSidePropsType } from 'next';
 import { withAuth } from '@/utils/withAuth';
 import Layout from '@/components/layout';
 
-export default function Dashboard({
+export default function IncomeOutcome({
   authData,
 }: Readonly<InferGetServerSidePropsType<typeof getServerSideProps>>) {
   return (
     <Layout authData={authData}>
       <h2 className="text-xl font-semibold mb-4">
-        Sistema de gestión de ingresos y gastos
+        Gestión de Ingresos y Egresos
       </h2>
-      {/* Aquí va el contenido del dashboard */}
+      {/* Aquí va el contenido de ingresos y egresos */}
     </Layout>
   );
 }
