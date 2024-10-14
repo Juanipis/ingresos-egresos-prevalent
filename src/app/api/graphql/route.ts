@@ -3,6 +3,8 @@ import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { gql } from 'graphql-tag';
 import { Role } from '@prisma/client'; // Importamos el enum de Prisma
 import { prisma } from '@/prisma';
+import { auth } from '@/auth';
+import { NextRequest } from 'next/server';
 
 const resolvers = {
   Query: {
@@ -70,6 +72,14 @@ const server = new ApolloServer({
   typeDefs,
 });
 
-// Usamos el helper de Apollo para Next.js
-export const GET = startServerAndCreateNextHandler(server);
-export const POST = startServerAndCreateNextHandler(server);
+const handler = startServerAndCreateNextHandler<NextRequest>(server, {
+  context: async (req) => {
+    console.log(req);
+    const session = await auth(req); // Obtener la sesión del usuario
+    console.log(session?.user?.name);
+    return { session }; // Pasar la sesión al contexto
+  },
+});
+
+// Exportar los manejadores de métodos GET y POST
+export { handler as GET, handler as POST };
