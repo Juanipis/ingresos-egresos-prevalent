@@ -1,11 +1,6 @@
-import { auth } from '@/auth';
 import { SignOut } from '@/components/signInButtom';
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { Session } from 'next-auth';
-
-type SessionData = {
-  session: Session;
-};
+import { InferGetServerSidePropsType } from 'next';
+import { withAuth } from '@/utils/withAuth';
 
 export default function Dashboard({
   datos,
@@ -13,6 +8,7 @@ export default function Dashboard({
   if (!datos) {
     return <p>You are not authorized to view this page!</p>;
   }
+
   console.log('datos', datos);
 
   return (
@@ -24,20 +20,5 @@ export default function Dashboard({
   );
 }
 
-export const getServerSideProps = (async (ctx) => {
-  const session = await auth(ctx);
-  if (!session) {
-    console.log('Session no encontrada');
-    return {
-      redirect: {
-        destination: '/', // Redirige a la página de inicio si no hay sesión
-        permanent: false,
-      },
-    };
-  }
-  const datos: SessionData = {
-    session: session,
-  };
-
-  return { props: { datos } };
-}) satisfies GetServerSideProps<{ repo: SessionData }>;
+// Usa la función withAuth para manejar la autenticación
+export const getServerSideProps = withAuth();
