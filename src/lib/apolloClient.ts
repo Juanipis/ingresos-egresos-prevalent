@@ -7,7 +7,7 @@ import {
 
 const httpLink = new HttpLink({
   uri: '/api/graphql', // GraphQL endpoint
-  credentials: 'same-origin', // This ensures cookies are sent with each request
+  credentials: 'include', // This ensures cookies are sent with each request
 });
 
 const apolloClient = new ApolloClient({

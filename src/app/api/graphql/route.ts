@@ -2,8 +2,6 @@ import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { gql } from 'graphql-tag';
 import { prisma } from '@/prisma';
-
-import { NextApiRequest, NextApiResponse } from 'next';
 import { auth } from '@/auth';
 
 const resolvers = {
@@ -66,9 +64,11 @@ const server = new ApolloServer({
 });
 
 const handler = startServerAndCreateNextHandler(server, {
-  context: async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await auth(req, res);
-    console.log(session);
+  context: async () => {
+    const session = await auth();
+    if (session?.user.role !== 'admin') {
+      throw new Error('Unauthorized');
+    }
     return { session };
   },
 });
