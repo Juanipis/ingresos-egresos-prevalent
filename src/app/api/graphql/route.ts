@@ -75,7 +75,7 @@ const server = new ApolloServer({
 const handler = startServerAndCreateNextHandler<NextRequest>(server, {
   context: async (req) => {
     console.log(req);
-    const session = await auth(req); // Obtener la sesión del usuario
+    const session = await auth(); // Obtener la sesión del usuario
     console.log(session?.user?.name);
     return { session }; // Pasar la sesión al contexto
   },
