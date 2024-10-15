@@ -1,7 +1,6 @@
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { gql } from 'graphql-tag';
-import { Role } from '@prisma/client';
 import { prisma } from '@/prisma';
 
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -10,9 +9,7 @@ import { auth } from '@/auth';
 const resolvers = {
   Query: {
     users: async () => {
-      return prisma.user.findMany({
-        cacheStrategy: { ttl: 60 },
-      });
+      return prisma.user.findMany({});
     },
     user: async (_: any, args: { id: string }) => {
       return prisma.user.findUnique({
@@ -23,7 +20,7 @@ const resolvers = {
   Mutation: {
     updateUser: async (
       _: any,
-      args: { id: string; name: string; role: Role }
+      args: { id: string; name: string; role: string }
     ) => {
       return prisma.user.update({
         where: { id: args.id },
@@ -43,16 +40,11 @@ const resolvers = {
 };
 
 const typeDefs = gql`
-  enum Role {
-    User
-    Admin
-  }
-
   type User {
     id: String!
     name: String
     email: String!
-    role: Role!
+    role: String!
     createdAt: String!
     updatedAt: String!
   }
@@ -63,7 +55,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    updateUser(id: String!, name: String, role: Role): User!
+    updateUser(id: String!, name: String, role: String): User!
     deleteUser(id: String!): Boolean
   }
 `;
@@ -76,7 +68,7 @@ const server = new ApolloServer({
 const handler = startServerAndCreateNextHandler(server, {
   context: async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await auth(req, res);
-
+    console.log(session);
     return { session };
   },
 });
