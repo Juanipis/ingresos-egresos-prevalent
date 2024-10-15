@@ -4,14 +4,12 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion'; // Import Framer Motion
 import UserDropdownMenu from './userDropdownMenu';
-import { SessionData } from '@/utils/withAuth';
 
 interface LayoutProps {
   children: ReactNode;
-  authData: SessionData;
 }
 
-export default function Layout({ children, authData }: Readonly<LayoutProps>) {
+export default function Layout({ children }: Readonly<LayoutProps>) {
   const router = useRouter();
   const currentRoute = router.pathname;
 
@@ -68,7 +66,7 @@ export default function Layout({ children, authData }: Readonly<LayoutProps>) {
         {/* Top bar */}
         <header className="bg-white shadow-sm">
           <div className="py-4 px-4 flex justify-between items-center">
-            <UserDropdownMenu authData={authData} />
+            <UserDropdownMenu />
           </div>
         </header>
 

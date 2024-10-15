@@ -1,5 +1,7 @@
 import '@/styles/globals.css';
+import { ApolloProvider } from '@apollo/client';
 import { SessionProvider } from 'next-auth/react';
+import client from '@/lib/apolloClient';
 import type { AppProps } from 'next/app';
 
 export default function App({
@@ -8,7 +10,9 @@ export default function App({
 }: AppProps) {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
+      <ApolloProvider client={client}>
+        <Component {...pageProps} />
+      </ApolloProvider>
     </SessionProvider>
   );
 }

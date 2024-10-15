@@ -11,4 +11,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientSecret: process.env.AUTH0_CLIENT_SECRET,
     }),
   ],
+
+  session: {
+    strategy: 'jwt',
+  },
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        // User is available during sign-in
+        token.id = user.id;
+      }
+      return token;
+    },
+  },
+  secret: process.env.SECRET,
 });
