@@ -3,13 +3,16 @@ import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { gql } from 'graphql-tag';
 import { Role } from '@prisma/client'; // Importamos el enum de Prisma
 import { prisma } from '@/prisma';
-import { auth } from '@/auth';
+
 import { NextRequest } from 'next/server';
+import { auth } from '@/auth';
 
 const resolvers = {
   Query: {
     users: async () => {
-      return prisma.user.findMany(); // Devuelve todos los usuarios
+      return prisma.user.findMany({
+        cacheStrategy: { ttl: 60 },
+      }); // Devuelve todos los usuarios
     },
     user: async (_: any, args: { id: string }) => {
       return prisma.user.findUnique({

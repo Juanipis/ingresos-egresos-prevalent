@@ -1,7 +1,12 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from '@prisma/client/edge';
+import { withAccelerate } from '@prisma/extension-accelerate';
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+// Crear el cliente Prisma y extenderlo con Accelerate
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-export const prisma = globalForPrisma.prisma || new PrismaClient()
+// Usar el cliente global o crear uno nuevo extendido con Accelerate
+export const prisma =
+  globalForPrisma.prisma || new PrismaClient().$extends(withAccelerate());
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+// Almacenar el cliente global solo en entornos no de producción
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
