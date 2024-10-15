@@ -51,7 +51,7 @@ export default function UserDropdownMenu() {
           <span>Email: {session?.data.user?.email}</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <span>Rol: {/* {session?.data.user?.role} */}</span>
+          <span>Rol: {session?.data.user?.role}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>

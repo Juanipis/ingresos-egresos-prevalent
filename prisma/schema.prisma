@@ -9,10 +9,7 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
-enum Role{
-  User
-  Admin
-}
+
 
 model User {
   id            String    @id @default(cuid())
@@ -20,7 +17,7 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   image         String?
-  role          Role      @default(User)
+  role          String?  @default("user")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
