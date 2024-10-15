@@ -1,10 +1,10 @@
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { gql } from 'graphql-tag';
-import { Role } from '@prisma/client'; // Importamos el enum de Prisma
+import { Role } from '@prisma/client';
 import { prisma } from '@/prisma';
 
-import { NextRequest } from 'next/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { auth } from '@/auth';
 
 const resolvers = {
@@ -12,7 +12,7 @@ const resolvers = {
     users: async () => {
       return prisma.user.findMany({
         cacheStrategy: { ttl: 60 },
-      }); // Devuelve todos los usuarios
+      });
     },
     user: async (_: any, args: { id: string }) => {
       return prisma.user.findUnique({
@@ -42,7 +42,6 @@ const resolvers = {
   },
 };
 
-// Definimos el esquema GraphQL
 const typeDefs = gql`
   enum Role {
     User
@@ -69,20 +68,17 @@ const typeDefs = gql`
   }
 `;
 
-// Crear el servidor Apollo
 const server = new ApolloServer({
   resolvers,
   typeDefs,
 });
 
-const handler = startServerAndCreateNextHandler<NextRequest>(server, {
-  context: async (req) => {
-    console.log(req);
-    const session = await auth(); // Obtener la sesión del usuario
-    console.log(session?.user?.name);
-    return { session }; // Pasar la sesión al contexto
+const handler = startServerAndCreateNextHandler(server, {
+  context: async (req: NextApiRequest, res: NextApiResponse) => {
+    const session = await auth(req, res);
+
+    return { session };
   },
 });
 
-// Exportar los manejadores de métodos GET y POST
 export { handler as GET, handler as POST };

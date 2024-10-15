@@ -1,24 +1,18 @@
 import {
   ApolloClient,
-  HttpLink,
   InMemoryCache,
-  createHttpLink,
+  HttpLink,
+  ApolloLink,
 } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-
-const isServer = typeof window === 'undefined';
-const uri = isServer
-  ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/graphql`
-  : '/api/graphql';
 
 const httpLink = new HttpLink({
-  uri: uri, // El endpoint de tu servidor Apollo
-  credentials: 'same-origin', // Para asegurarse de que las cookies se envíen
+  uri: '/api/graphql', // GraphQL endpoint
+  credentials: 'same-origin', // This ensures cookies are sent with each request
 });
 
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
+const apolloClient = new ApolloClient({
+  link: ApolloLink.from([httpLink]), // ApolloLink allows you to chain multiple links together
+  cache: new InMemoryCache(), // Apollo caching mechanism
 });
 
-export default client;
+export default apolloClient;

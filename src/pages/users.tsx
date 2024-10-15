@@ -1,8 +1,7 @@
 import Layout from '@/components/layout';
-import apolloClient from '@/lib/apolloClient';
-import { gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
-// Definimos la consulta GraphQL para obtener usuarios
+// Define the GraphQL query
 const GET_USERS_QUERY = gql`
   query GetUsers {
     users {
@@ -21,11 +20,16 @@ interface User {
   role: string;
 }
 
-interface UsersProps {
-  users: User[];
-}
+export default function Users() {
+  // Use Apollo's useQuery hook to fetch data
+  const { loading, error, data } = useQuery(GET_USERS_QUERY);
 
-export default function Users({ users }: Readonly<UsersProps>) {
+  // Handle loading and error states
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  const users: User[] = data.users;
+
   return (
     <Layout>
       <h2 className="text-xl font-semibold mb-4">Gestión de Usuarios</h2>
@@ -49,17 +53,4 @@ export default function Users({ users }: Readonly<UsersProps>) {
       </table>
     </Layout>
   );
-}
-
-// Con getServerSideProps obtenemos los datos de la consulta GraphQL
-export async function getServerSideProps() {
-  const { data } = await apolloClient.query({
-    query: GET_USERS_QUERY,
-  });
-
-  return {
-    props: {
-      users: data.users,
-    },
-  };
 }
