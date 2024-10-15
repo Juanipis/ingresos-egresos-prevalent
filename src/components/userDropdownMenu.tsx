@@ -30,8 +30,8 @@ export default function UserDropdownMenu() {
         <Button variant="ghost" className="flex items-center space-x-2">
           <Avatar>
             <AvatarImage
-              src={session?.data.user?.image}
-              alt={session?.data.user?.name}
+              src={session?.data.user?.image ? session.data.user.image : ''}
+              alt={session?.data.user?.name ? session.data.user.name : ''}
             />
             <AvatarFallback>
               {session.data.user?.name?.charAt(0) ?? 'U'}
@@ -51,7 +51,7 @@ export default function UserDropdownMenu() {
           <span>Email: {session?.data.user?.email}</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <span>Rol: {session?.data.user?.role}</span>
+          <span>Rol: {/* {session?.data.user?.role} */}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
