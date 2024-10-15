@@ -1,12 +1,8 @@
-import { InferGetServerSidePropsType } from 'next';
-import { withAuth } from '@/utils/withAuth';
 import Layout from '@/components/layout';
 
-export default function IncomeOutcome({
-  authData,
-}: Readonly<InferGetServerSidePropsType<typeof getServerSideProps>>) {
+export default function IncomeOutcome() {
   return (
-    <Layout authData={authData}>
+    <Layout>
       <h2 className="text-xl font-semibold mb-4">
         Gestión de Ingresos y Egresos
       </h2>
@@ -14,5 +10,3 @@ export default function IncomeOutcome({
     </Layout>
   );
 }
-
-export const getServerSideProps = withAuth();

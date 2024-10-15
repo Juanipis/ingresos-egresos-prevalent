@@ -10,12 +10,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, User } from 'lucide-react';
-import { WithAuthProps } from '@/utils/withAuth';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
-export default function UserDropdownMenu({
-  authData,
-}: Readonly<WithAuthProps>) {
+export default function UserDropdownMenu() {
+  const session = useSession();
+  console.log(session);
   const handleSignOut = () => {
     try {
       console.log('Cerrando sesión...');
@@ -24,20 +23,21 @@ export default function UserDropdownMenu({
       console.error('Error signing out:', error);
     }
   };
+  if (!session.data) return null;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="flex items-center space-x-2">
           <Avatar>
             <AvatarImage
-              src={authData.session.user?.image}
-              alt={authData.session.user?.name}
+              src={session?.data.user?.image}
+              alt={session?.data.user?.name}
             />
             <AvatarFallback>
-              {authData.session.user?.name?.charAt(0) ?? 'U'}
+              {session.data.user?.name?.charAt(0) ?? 'U'}
             </AvatarFallback>
           </Avatar>
-          <span>Hola {authData.session.user?.name}</span>
+          <span>Hola {session?.data.user?.name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
@@ -45,13 +45,13 @@ export default function UserDropdownMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <User className="mr-2 h-4 w-4" />
-          <span>Nombre: {authData.session.user?.name}</span>
+          <span>Nombre: {session?.data.user?.name}</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <span>Email: {authData.session.user?.email}</span>
+          <span>Email: {session?.data.user?.email}</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <span>Rol: {authData.session.user?.role}</span>
+          <span>Rol: {session?.data.user?.role}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>

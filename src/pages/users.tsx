@@ -1,7 +1,5 @@
 import Layout from '@/components/layout';
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { withAuth, WithAuthProps } from '@/utils/withAuth'; // Asegurarse de importar el tipo WithAuthProps
-import client from '@/lib/apolloClient';
+import apolloClient from '@/lib/apolloClient';
 import { gql } from '@apollo/client';
 
 // Definimos la consulta GraphQL para obtener usuarios
@@ -16,17 +14,20 @@ const GET_USERS_QUERY = gql`
   }
 `;
 
-// Definimos el tipo que incluirá los usuarios en los props
-type UsersProps = WithAuthProps & {
-  users: Array<{ id: string; name: string; email: string; role: string }>;
-};
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
-export default function Users({
-  authData,
-  users,
-}: Readonly<InferGetServerSidePropsType<typeof getServerSideProps>>) {
+interface UsersProps {
+  users: User[];
+}
+
+export default function Users({ users }: Readonly<UsersProps>) {
   return (
-    <Layout authData={authData}>
+    <Layout>
       <h2 className="text-xl font-semibold mb-4">Gestión de Usuarios</h2>
       <table className="min-w-full bg-white shadow-md rounded-lg">
         <thead>
@@ -50,15 +51,15 @@ export default function Users({
   );
 }
 
-export const getServerSideProps = withAuth(async (ctx) => {
-  // Hacemos la consulta de usuarios desde Apollo Client
-  const { data } = await client.query({
+// Con getServerSideProps obtenemos los datos de la consulta GraphQL
+export async function getServerSideProps() {
+  const { data } = await apolloClient.query({
     query: GET_USERS_QUERY,
   });
 
   return {
     props: {
-      users: data.users, // Pasamos los usuarios como prop
+      users: data.users,
     },
   };
-}) as unknown as GetServerSideProps<UsersProps>; // Ajustar los tipos para incluir users
+}

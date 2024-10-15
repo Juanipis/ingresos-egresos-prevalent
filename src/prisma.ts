@@ -1,10 +1,11 @@
-import { PrismaClient } from '@prisma/client/edge';
+import { PrismaClient } from '@prisma/client/edge'; // Asegúrate de usar el cliente Edge
 import { withAccelerate } from '@prisma/extension-accelerate';
 
-// Crear el cliente Prisma y extenderlo con Accelerate
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-// Usar el cliente global o crear uno nuevo extendido con Accelerate
+// Crear un cliente Prisma Edge extendido con Accelerate
 export const prisma =
   globalForPrisma.prisma || new PrismaClient().$extends(withAccelerate());
 
