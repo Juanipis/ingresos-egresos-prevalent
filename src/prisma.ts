@@ -1,18 +1,15 @@
-import { PrismaClient } from '@prisma/client/edge'; // Edge version
+import { PrismaClient } from '@prisma/client/edge'; // Edge version of Prisma
 import { withAccelerate } from '@prisma/extension-accelerate';
 
-// Define the type for the extended Prisma client
-type ExtendedPrismaClient = ReturnType<PrismaClient['$extends']>;
+// Create a new instance of PrismaClient with the Accelerate extension
+const prismaClient = new PrismaClient().$extends(withAccelerate());
 
-// Define the global object
+// Explicitly cast the extended Prisma client to the PrismaClient type
 // eslint-disable-next-line no-undef
-const globalForPrisma = globalThis as unknown as {
-  prisma: ExtendedPrismaClient | undefined;
-};
+export const prisma = (globalThis as any).prisma || prismaClient;
 
-// Create the extended Prisma client with Accelerate
-export const prisma =
-  globalForPrisma.prisma || new PrismaClient().$extends(withAccelerate());
-
-// Store the client globally only in non-production environments
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// Cache the Prisma client globally to prevent it from being re-initialized in development
+if (process.env.NODE_ENV !== 'production') {
+  // eslint-disable-next-line no-undef
+  (globalThis as any).prisma = prisma;
+}
