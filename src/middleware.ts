@@ -1,30 +1,26 @@
-// middleware.ts
-
 import { auth } from '@/auth';
+/*
+Unfortunately you can't use withAuth if you're using a session database strategy. It only works with a jwt session strategy.
+I'm trying to solve the same problem and haven't found a solution for it yet..
+
+"For the time being, the withAuth middleware only supports "jwt" as session strategy."
+https://next-auth.js.org/tutorials/securing-pages-and-api-routes#nextjs-middleware
+https://github.com/nextauthjs/next-auth/discussions/6909
+*/
 
 export default auth((req) => {
-  // Permitir el acceso sin autenticación a "/" y "/login"
-  if (req.nextUrl.pathname === '/' || req.nextUrl.pathname === '/login') {
-    return;
+  const pathRequest = req.nextUrl.pathname;
+  const apiRequest = req.nextUrl.pathname.startsWith('/api');
+  if (apiRequest) {
+    console.log('API request');
+    console.log(req.auth);
   }
-
-  // Si la solicitud es a `/api/graphql` y el usuario no está autenticado, retornar un 401 sin redirigir
-  if (req.nextUrl.pathname === '/api/graphql' && !req.auth) {
-    console.log('Not authenticated');
-    return new Response('Not authenticated', { status: 401 });
+  if (!req.auth && req.nextUrl.pathname !== '/login') {
+    const newUrl = new URL('/', req.nextUrl.origin);
+    return Response.redirect(newUrl);
   }
-
-  // Aquí puedes añadir lógica adicional para otras rutas si es necesario
 });
 
 export const config = {
-  matcher: [
-    /*
-      Protege todas las rutas excepto:
-      - Las rutas que empiezan con `/api/`
-      - Archivos estáticos de Next.js (`/_next/static`, `/_next/image`)
-      - El favicon
-    */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
