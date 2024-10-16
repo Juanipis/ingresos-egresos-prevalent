@@ -42,3 +42,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 npm exec prisma generate
 npm exec prisma migrate dev
 Se usó prisma accelerate
+
+Mirar esto para los tests:
+https://github.com/renanleonel/next-auth-v5-middleware/tree/main

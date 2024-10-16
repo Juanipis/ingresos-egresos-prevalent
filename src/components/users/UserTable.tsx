@@ -5,6 +5,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TableHeader,
   TableRow,
 } from '@/components/ui/table';
 import { Pencil } from 'lucide-react';
@@ -37,14 +38,14 @@ export function UserTable({ users, onEdit }: Readonly<UserTableProps>) {
 
   return (
     <Table className="min-w-full bg-white shadow-md rounded-lg">
-      <TableHead>
+      <TableHeader>
         <TableRow>
-          <TableCell>Nombre</TableCell>
-          <TableCell>Email</TableCell>
-          <TableCell>Rol</TableCell>
-          <TableCell>Acciones</TableCell>
+          <TableHead>Nombre</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Rol</TableHead>
+          <TableHead>Acciones</TableHead>
         </TableRow>
-      </TableHead>
+      </TableHeader>
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
