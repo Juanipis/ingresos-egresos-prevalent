@@ -9,17 +9,14 @@ const resolvers = {
     users: async () => {
       return prisma.user.findMany({});
     },
-    user: async (_: any, args: { id: string }) => {
+    user: async (args: { id: string }) => {
       return prisma.user.findUnique({
         where: { id: args.id },
       });
     },
   },
   Mutation: {
-    updateUser: async (
-      _: any,
-      args: { id: string; name: string; role: string }
-    ) => {
+    updateUser: async (args: { id: string; name: string; role: string }) => {
       return prisma.user.update({
         where: { id: args.id },
         data: {
@@ -28,7 +25,7 @@ const resolvers = {
         },
       });
     },
-    deleteUser: async (_: any, args: { id: string }) => {
+    deleteUser: async (args: { id: string }) => {
       await prisma.user.delete({
         where: { id: args.id },
       });
