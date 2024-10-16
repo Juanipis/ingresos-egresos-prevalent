@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 
 interface User {
@@ -21,9 +21,14 @@ interface User {
 interface UserTableProps {
   users: User[];
   onEdit: (user: User) => void;
+  onDelete: (userId: string) => void;
 }
 
-export function UserTable({ users, onEdit }: Readonly<UserTableProps>) {
+export function UserTable({
+  users,
+  onEdit,
+  onDelete,
+}: Readonly<UserTableProps>) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -55,6 +60,13 @@ export function UserTable({ users, onEdit }: Readonly<UserTableProps>) {
             <TableCell>
               <Button variant="ghost" size="icon" onClick={() => onEdit(user)}>
                 <Pencil className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(user.id)}
+              >
+                <Trash className="h-4 w-4" />
               </Button>
             </TableCell>
           </TableRow>
