@@ -16,12 +16,16 @@ const resolvers = {
     },
   },
   Mutation: {
-    updateUser: async (args: { id: string; name: string; role: string }) => {
+    //TODO: CUIDADO CON EL _: any, es importante para que funciome
+    updateUser: async (
+      _: any,
+      { id, name, role }: { id: string; name: string; role: string }
+    ) => {
       return prisma.user.update({
-        where: { id: args.id },
+        where: { id },
         data: {
-          name: args.name,
-          role: args.role,
+          name,
+          role,
         },
       });
     },
