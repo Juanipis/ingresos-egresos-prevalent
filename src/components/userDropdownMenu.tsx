@@ -16,12 +16,7 @@ export default function UserDropdownMenu() {
   const session = useSession();
   console.log(session);
   const handleSignOut = () => {
-    try {
-      console.log('Cerrando sesión...');
-      signOut();
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
+    signOut();
   };
   if (!session.data) return null;
   return (
@@ -51,7 +46,7 @@ export default function UserDropdownMenu() {
           <span>Email: {session?.data.user?.email}</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <span>Rol: {/* {session?.data.user?.role} */}</span>
+          <span>Rol: {session?.data.user?.role}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>

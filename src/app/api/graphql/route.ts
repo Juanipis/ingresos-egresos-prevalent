@@ -1,30 +1,22 @@
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { gql } from 'graphql-tag';
-import { Role } from '@prisma/client';
 import { prisma } from '@/prisma';
-
-import { NextApiRequest, NextApiResponse } from 'next';
 import { auth } from '@/auth';
 
 const resolvers = {
   Query: {
     users: async () => {
-      return prisma.user.findMany({
-        cacheStrategy: { ttl: 60 },
-      });
+      return prisma.user.findMany({});
     },
-    user: async (_: any, args: { id: string }) => {
+    user: async (args: { id: string }) => {
       return prisma.user.findUnique({
         where: { id: args.id },
       });
     },
   },
   Mutation: {
-    updateUser: async (
-      _: any,
-      args: { id: string; name: string; role: Role }
-    ) => {
+    updateUser: async (args: { id: string; name: string; role: string }) => {
       return prisma.user.update({
         where: { id: args.id },
         data: {
@@ -33,7 +25,7 @@ const resolvers = {
         },
       });
     },
-    deleteUser: async (_: any, args: { id: string }) => {
+    deleteUser: async (args: { id: string }) => {
       await prisma.user.delete({
         where: { id: args.id },
       });
@@ -43,16 +35,11 @@ const resolvers = {
 };
 
 const typeDefs = gql`
-  enum Role {
-    User
-    Admin
-  }
-
   type User {
     id: String!
     name: String
     email: String!
-    role: Role!
+    role: String!
     createdAt: String!
     updatedAt: String!
   }
@@ -63,7 +50,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    updateUser(id: String!, name: String, role: Role): User!
+    updateUser(id: String!, name: String, role: String): User!
     deleteUser(id: String!): Boolean
   }
 `;
@@ -74,9 +61,11 @@ const server = new ApolloServer({
 });
 
 const handler = startServerAndCreateNextHandler(server, {
-  context: async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await auth(req, res);
-
+  context: async () => {
+    const session = await auth();
+    if (session?.user.role !== 'admin') {
+      throw new Error('Unauthorized');
+    }
     return { session };
   },
 });
