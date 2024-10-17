@@ -19,47 +19,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-
-type Movement = {
-  id: number;
-  concept: string;
-  amount: number;
-  date: string;
-  user: string;
-};
+import { useMoneyMovements } from '@/features/money_movements/hooks/useMoneyMovements';
 
 export default function IncomeOutcomeComponent() {
-  const [movements, setMovements] = useState<Movement[]>([
-    {
-      id: 1,
-      concept: 'Salary',
-      amount: 5000,
-      date: '2023-05-01',
-      user: 'John Doe',
-    },
-    {
-      id: 2,
-      concept: 'Rent',
-      amount: -1000,
-      date: '2023-05-02',
-      user: 'John Doe',
-    },
-    {
-      id: 3,
-      concept: 'Groceries',
-      amount: -200,
-      date: '2023-05-03',
-      user: 'Jane Doe',
-    },
-  ]);
+  const { loading, error, moneyMovements, createMoneyMovementRecord } =
+    useMoneyMovements();
 
-  const [newMovement, setNewMovement] = useState<Omit<Movement, 'id' | 'user'>>(
-    {
-      concept: '',
-      amount: 0,
-      date: '',
-    }
-  );
+  const [newMovement, setNewMovement] = useState({
+    concept: '',
+    amount: 0,
+    date: '',
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,15 +39,26 @@ export default function IncomeOutcomeComponent() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const id = movements.length + 1;
-    const user = 'Current User'; // This would typically come from an authentication context
-    setMovements([...movements, { ...newMovement, id, user }]);
-    setNewMovement({ concept: '', amount: 0, date: '' });
+    try {
+      await createMoneyMovementRecord(
+        newMovement.amount,
+        newMovement.concept,
+        new Date(newMovement.date)
+      );
+      console.log('Movimiento creado');
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const totalAmount = movements.reduce(
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  //log the moneyMovements
+  console.log(moneyMovements);
+
+  const totalAmount = moneyMovements.reduce(
     (sum, movement) => sum + movement.amount,
     0
   );
@@ -142,12 +123,15 @@ export default function IncomeOutcomeComponent() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {movements.map((movement) => (
+          {moneyMovements.map((movement) => (
             <TableRow key={movement.id}>
               <TableCell>{movement.concept}</TableCell>
               <TableCell>{movement.amount.toFixed(2)}</TableCell>
-              <TableCell>{movement.date}</TableCell>
-              <TableCell>{movement.user}</TableCell>
+
+              <TableCell>
+                {new Date(parseInt(movement.date)).toLocaleDateString()}
+              </TableCell>
+              <TableCell>{movement.user.name}</TableCell>
             </TableRow>
           ))}
         </TableBody>
