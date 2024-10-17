@@ -3,6 +3,7 @@ import { ApolloProvider } from '@apollo/client';
 import { SessionProvider } from 'next-auth/react';
 import client from '@/lib/apolloClient';
 import type { AppProps } from 'next/app';
+import { Toaster } from '@/components/ui/toaster';
 
 export default function App({
   Component,
@@ -12,6 +13,7 @@ export default function App({
     <SessionProvider session={session}>
       <ApolloProvider client={client}>
         <Component {...pageProps} />
+        <Toaster />
       </ApolloProvider>
     </SessionProvider>
   );
