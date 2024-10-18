@@ -18,7 +18,7 @@ const resolvers = {
     users: async () => {
       return prisma.user.findMany({});
     },
-    user: async (_: any, args: { id: string }, context: GraphQLContext) => {
+    user: async (_: unknown, args: { id: string }) => {
       return prisma.user.findUnique({
         where: { id: args.id },
         include: {
@@ -26,18 +26,15 @@ const resolvers = {
         },
       });
     },
-    moneyMovements: async (
-      _: any,
-      args: { email?: string },
-      context: GraphQLContext
-    ) => {
-      // si el email no está presente, se obtienen todos los movimientos
+    moneyMovements: async (_: unknown, args: { email?: string }) => {
       if (!args.email) {
         return prisma.moneyMovement.findMany({});
       }
-      return prisma.moneyMovement.findMany({});
+      return prisma.moneyMovement.findMany({
+        where: { user: { email: args.email } },
+      });
     },
-    moneyMovement: async (_: any, args: { id: string }) => {
+    moneyMovement: async (_: unknown, args: { id: string }) => {
       return prisma.moneyMovement.findUnique({
         where: { id: args.id },
         include: {
@@ -48,7 +45,7 @@ const resolvers = {
   },
   Mutation: {
     createMoneyMovement: async (
-      _: any,
+      _: unknown,
       {
         amount,
         concept,
@@ -56,8 +53,6 @@ const resolvers = {
       }: { amount: number; concept: string; date: string },
       context: GraphQLContext
     ) => {
-      console.log('Recived params: ', amount, concept, date);
-      // Consultar el userId solo cuando es necesario
       const user = await prisma.user.findUnique({
         where: { email: context.session.user.email },
       });
@@ -66,29 +61,22 @@ const resolvers = {
         throw new Error('User not found');
       }
 
-      // convertir el string de fecha a un objeto Date
       const parsedDate = date ? new Date(date) : new Date();
 
       return prisma.moneyMovement.create({
         data: {
-          userId: user.id, // Relacionar el movimiento con el usuario autenticado
+          userId: user.id,
           amount,
           concept,
-          date: parsedDate, // Cambiado de `parsedDate` a `date` para Prisma
+          date: parsedDate,
         },
       });
     },
 
     updateMoneyMovement: async (
-      _: any,
-      {
-        id,
-        amount,
-        concept,
-      }: { id: string; amount?: number; concept?: string },
-      context: GraphQLContext
+      _: unknown,
+      { id, amount, concept }: { id: string; amount?: number; concept?: string }
     ) => {
-      // En este caso no necesitamos obtener el userId porque estamos actualizando por id de movimiento
       return prisma.moneyMovement.update({
         where: { id },
         data: {
@@ -97,7 +85,7 @@ const resolvers = {
         },
       });
     },
-    deleteMoneyMovement: async (_: any, { id }: { id: string }) => {
+    deleteMoneyMovement: async (_: unknown, { id }: { id: string }) => {
       await prisma.moneyMovement.delete({
         where: { id },
       });
@@ -105,7 +93,7 @@ const resolvers = {
     },
   },
   MoneyMovement: {
-    user: async (parent: any) => {
+    user: async (parent: { userId: string }) => {
       return prisma.user.findUnique({
         where: { id: parent.userId },
       });
@@ -121,7 +109,7 @@ const typeDefs = gql`
     role: String!
     createdAt: String!
     updatedAt: String!
-    moneyMovements: [MoneyMovement!]! # Relación con MoneyMovement
+    moneyMovements: [MoneyMovement!]!
   }
 
   type MoneyMovement {
@@ -129,7 +117,7 @@ const typeDefs = gql`
     userId: String
     amount: Float!
     concept: String!
-    date: String! # Usamos String para manejar DateTime
+    date: String!
     createdAt: String!
     updatedAt: String!
     user: User
@@ -138,7 +126,7 @@ const typeDefs = gql`
   type Query {
     users: [User!]!
     user(id: String!): User
-    moneyMovements(email: String): [MoneyMovement!]! # Consulta opcional por email
+    moneyMovements(email: String): [MoneyMovement!]!
     moneyMovement(id: String!): MoneyMovement
   }
 
@@ -166,16 +154,25 @@ const typeDefs = gql`
 const server = new ApolloServer({
   resolvers,
   typeDefs,
+  formatError: (error) => {
+    console.error('GraphQL Error:', error);
+    return {
+      message: error.message,
+      locations: error.locations,
+      path: error.path,
+      extensions: error.extensions,
+    };
+  },
 });
 
 const handler = startServerAndCreateNextHandler(server, {
   context: async () => {
-    const session = await auth(); // Obtenemos la sesión con el correo electrónico
+    const session = await auth();
     if (!session || session?.user.role !== 'admin') {
       throw new Error('Unauthorized');
     }
 
-    return { session }; // Pasamos toda la sesión al contexto
+    return { session };
   },
 });
 

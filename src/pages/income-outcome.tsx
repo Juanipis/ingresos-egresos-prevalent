@@ -1,16 +1,40 @@
-import IncomeOutcomeAddDialog from '@/components/income-outcome/IncomeOutcomeAddDialog';
+import AddIncomeOutcomeDialog from '@/components/income-outcome/AddIncomeOutcomeDialog';
 import IncomeOutcomeTable from '@/components/income-outcome/IncomeOutcomeTable';
+import { MoneyMovementFormData } from '@/components/income-outcome/types/moneyMovementFormData';
 import Layout from '@/components/layout';
 import { useMoneyMovements } from '@/features/money_movements/hooks/useMoneyMovements';
 
 export default function IncomeOutcome() {
-  const { loading, error, moneyMovements, createMoneyMovementRecord } =
-    useMoneyMovements();
+  const {
+    loading,
+    error,
+    moneyMovements,
+    createMoneyMovementRecord,
+    updateMoneyMovementRecord,
+    deleteMoneyMovementRecord,
+  } = useMoneyMovements();
 
-  const handleSubmit = async (amount, concept, date) => {
+  const handleAdd = async (data: MoneyMovementFormData) => {
+    await createMoneyMovementRecord(
+      data.amount,
+      data.concept,
+      new Date(data.date)
+    );
+  };
+
+  const handleEdit = (id: string) => async (data: MoneyMovementFormData) => {
+    await updateMoneyMovementRecord(
+      id,
+      data.amount,
+      data.concept,
+      new Date(data.date)
+    );
+  };
+
+  const handleDelete = async (id: string) => {
+    console.log('Eliminando registro con id:', id);
     try {
-      await createMoneyMovementRecord(amount, concept, new Date(date));
-      console.log('Movimiento creado');
+      await deleteMoneyMovementRecord(id);
     } catch (error) {
       console.log(error);
     }
@@ -23,14 +47,19 @@ export default function IncomeOutcome() {
     (sum, movement) => sum + movement.amount,
     0
   );
+
   return (
     <Layout>
       <div className="p-4 space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Ingresos y egresos</h2>
-          <IncomeOutcomeAddDialog handleSubmit={handleSubmit} />
+          <AddIncomeOutcomeDialog onAdd={handleAdd} />
         </div>
-        <IncomeOutcomeTable moneyMovements={moneyMovements} />
+        <IncomeOutcomeTable
+          moneyMovements={moneyMovements}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
         <div className="text-right font-bold">
           Total: ${totalAmount.toFixed(2)}
         </div>
