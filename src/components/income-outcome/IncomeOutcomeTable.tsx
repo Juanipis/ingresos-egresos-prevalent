@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Trash } from 'lucide-react';
 import { MoneyMovementFormData } from './types/moneyMovementFormData';
 import { DeleteConfirmationDialog } from './DeleteConfirmationDialog';
+import { useToast } from '@/hooks/use-toast'; // Asegúrate de que este hook existe
+
 interface MoneyMovement {
   id: string;
   concept: string;
@@ -36,6 +38,7 @@ export default function IncomeOutcomeTable({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMovement, setSelectedMovement] =
     useState<MoneyMovement | null>(null);
+  const { toast } = useToast(); // Utilizamos el hook para mostrar un toast
 
   const handleDeleteClick = (movement: MoneyMovement) => {
     setSelectedMovement(movement); // Guarda el movimiento seleccionado
@@ -44,9 +47,20 @@ export default function IncomeOutcomeTable({
 
   const handleConfirmDelete = async () => {
     if (selectedMovement) {
-      await onDelete(selectedMovement.id); // Llama a la función de eliminación
-      setIsDialogOpen(false); // Cierra el diálogo
-      setSelectedMovement(null); // Resetea el estado
+      try {
+        await onDelete(selectedMovement.id); // Llama a la función de eliminación
+        toast({
+          description: `El movimiento con concepto "${selectedMovement.concept}" fue eliminado correctamente.`,
+        });
+        setIsDialogOpen(false); // Cierra el diálogo
+        setSelectedMovement(null); // Resetea el estado
+      } catch (error) {
+        console.error('Error al eliminar:', error);
+        toast({
+          variant: 'destructive',
+          description: 'Ocurrió un error al eliminar el movimiento.',
+        });
+      }
     }
   };
 
