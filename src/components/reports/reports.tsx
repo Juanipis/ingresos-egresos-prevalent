@@ -142,11 +142,15 @@ const mockData = [
   { amount: 800, concept: 'Freelance Project', date: '2023-08-10' },
   { amount: -150, concept: 'Utilities', date: '2023-08-07' },
 ];
+const parseDate = (str: string) => {
+  const [year, month, day] = str.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
 
 const groupBy = (data: any[], groupBy: string) => {
-  const groupedData: { [key: string]: number } = {};
+  const groupedData: { [key: string]: any } = {};
   data.forEach((item) => {
-    const date = parseISO(item.date);
+    const date = parseDate(item.date);
     let groupKey = '';
 
     switch (groupBy) {
@@ -155,7 +159,7 @@ const groupBy = (data: any[], groupBy: string) => {
         break;
       case 'week':
         const weekNumber = getISOWeek(date);
-        const monthName = format(date, 'MMMM');
+        const monthName = format(date, 'MMMM'); // Get month name
         const year = getYear(date);
         groupKey = `Week ${weekNumber} - ${monthName} ${year}`;
         break;
@@ -176,14 +180,25 @@ const groupBy = (data: any[], groupBy: string) => {
     }
 
     if (!groupedData[groupKey]) {
-      groupedData[groupKey] = 0;
+      groupedData[groupKey] = {
+        totalAmount: 0,
+        incomes: 0,
+        outcomes: 0,
+      };
     }
-    groupedData[groupKey] += item.amount;
+
+    if (item.amount >= 0) {
+      groupedData[groupKey].incomes += item.amount;
+    } else {
+      groupedData[groupKey].outcomes += item.amount;
+    }
+
+    groupedData[groupKey].totalAmount += item.amount;
   });
 
   return Object.keys(groupedData).map((key) => ({
     label: key,
-    totalAmount: groupedData[key],
+    ...groupedData[key],
   }));
 };
 
@@ -191,41 +206,93 @@ export default function MoneyMovementsBarChart() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [data, setData] = useState(mockData);
-  const [grouping, setGrouping] = useState('month');
+  const [grouping, setGrouping] = useState('year');
+  const [viewMode, setViewMode] = useState('both');
 
+  // Filter data by date range
   const filteredData = data.filter((movement) => {
-    const movementDate = parseISO(movement.date).getTime();
+    const movementDate = parseDate(movement.date).getTime();
     const start = startDate
-      ? parseISO(startDate).setHours(0, 0, 0, 0)
+      ? parseDate(startDate).setHours(0, 0, 0, 0)
       : -Infinity;
     const end = endDate
-      ? parseISO(endDate).setHours(23, 59, 59, 999)
+      ? parseDate(endDate).setHours(23, 59, 59, 999)
       : Infinity;
     return movementDate >= start && movementDate <= end;
   });
 
   const groupedData = groupBy(filteredData, grouping);
 
-  const chartData = {
-    labels: groupedData.map((item) => item.label),
-    datasets: [
-      {
-        label: 'Money Movement',
-        data: groupedData.map((item) => item.totalAmount),
-        backgroundColor: groupedData.map((item) =>
-          item.totalAmount >= 0
-            ? 'rgba(75, 192, 192, 0.6)'
-            : 'rgba(255, 99, 132, 0.6)'
-        ),
-        borderColor: groupedData.map((item) =>
-          item.totalAmount >= 0
-            ? 'rgba(75, 192, 192, 1)'
-            : 'rgba(255, 99, 132, 1)'
-        ),
-        borderWidth: 1,
-      },
-    ],
-  };
+  let chartData;
+
+  if (viewMode === 'net') {
+    chartData = {
+      labels: groupedData.map((item) => item.label),
+      datasets: [
+        {
+          label: 'Net Amount',
+          data: groupedData.map((item) => item.totalAmount),
+          backgroundColor: groupedData.map((item) =>
+            item.totalAmount >= 0
+              ? 'rgba(75, 192, 192, 0.6)'
+              : 'rgba(255, 99, 132, 0.6)'
+          ),
+          borderColor: groupedData.map((item) =>
+            item.totalAmount >= 0
+              ? 'rgba(75, 192, 192, 1)'
+              : 'rgba(255, 99, 132, 1)'
+          ),
+          borderWidth: 1,
+        },
+      ],
+    };
+  } else if (viewMode === 'incomes') {
+    chartData = {
+      labels: groupedData.map((item) => item.label),
+      datasets: [
+        {
+          label: 'Incomes',
+          data: groupedData.map((item) => item.incomes),
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+        },
+      ],
+    };
+  } else if (viewMode === 'outcomes') {
+    chartData = {
+      labels: groupedData.map((item) => item.label),
+      datasets: [
+        {
+          label: 'Outcomes',
+          data: groupedData.map((item) => Math.abs(item.outcomes)),
+          backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1,
+        },
+      ],
+    };
+  } else if (viewMode === 'both') {
+    chartData = {
+      labels: groupedData.map((item) => item.label),
+      datasets: [
+        {
+          label: 'Incomes',
+          data: groupedData.map((item) => item.incomes),
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+        },
+        {
+          label: 'Outcomes',
+          data: groupedData.map((item) => Math.abs(item.outcomes)),
+          backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1,
+        },
+      ],
+    };
+  }
 
   const options = {
     responsive: true,
@@ -235,7 +302,6 @@ export default function MoneyMovementsBarChart() {
       },
       title: {
         display: true,
-        text: 'Money Movements Bar Chart',
       },
     },
     scales: {
@@ -249,40 +315,50 @@ export default function MoneyMovementsBarChart() {
 
   return (
     <div className="space-y-4">
-      {/* Date range inputs */}
       <div className="flex justify-between items-center space-x-2">
         <Input
           type="date"
-          placeholder="Start Date"
+          placeholder="Fecha de inicio"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
         />
         <Input
           type="date"
-          placeholder="End Date"
+          placeholder="Fecha de fin"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
         />
       </div>
 
       {/* Time grouping selector */}
-      <div className="flex justify-end">
+      <div className="flex justify-between">
         <Select value={grouping} onValueChange={setGrouping}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Group By" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="day">Day</SelectItem>
-            <SelectItem value="week">Week</SelectItem>
-            <SelectItem value="month">Month</SelectItem>
-            <SelectItem value="quarter">Quarter</SelectItem>
-            <SelectItem value="semester">Semester</SelectItem>
-            <SelectItem value="year">Year</SelectItem>
+            <SelectItem value="day">Días</SelectItem>
+            <SelectItem value="week">Semanas (ISO)</SelectItem>
+            <SelectItem value="month">Mes</SelectItem>
+            <SelectItem value="quarter">Cuatrimestre</SelectItem>
+            <SelectItem value="semester">Semestres</SelectItem>
+            <SelectItem value="year">Años</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={viewMode} onValueChange={setViewMode}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="View Mode" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="net">Ingreso neto</SelectItem>
+            <SelectItem value="incomes">Solo ingresos</SelectItem>
+            <SelectItem value="outcomes">Solo egresos</SelectItem>
+            <SelectItem value="both">Ingresos y egresos</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Chart */}
       <Bar data={chartData} options={options} />
 
       {/* Reset Button */}
@@ -294,7 +370,7 @@ export default function MoneyMovementsBarChart() {
             setEndDate('');
           }}
         >
-          Reset Dates
+          Reiniciar fechas
         </Button>
       </div>
     </div>
