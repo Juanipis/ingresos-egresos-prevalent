@@ -38,24 +38,22 @@ export default function IncomeOutcomeTable({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMovement, setSelectedMovement] =
     useState<MoneyMovement | null>(null);
-  const { toast } = useToast(); // Utilizamos el hook para mostrar un toast
+  const { toast } = useToast();
 
   const handleDeleteClick = (movement: MoneyMovement) => {
-    setSelectedMovement(movement); // Guarda el movimiento seleccionado
-    setIsDialogOpen(true); // Abre el diálogo
+    setSelectedMovement(movement);
+    setIsDialogOpen(true);
   };
-
-  console.log('moneyMovements:', moneyMovements);
 
   const handleConfirmDelete = async () => {
     if (selectedMovement) {
       try {
-        await onDelete(selectedMovement.id); // Llama a la función de eliminación
+        await onDelete(selectedMovement.id);
         toast({
           description: `El movimiento con concepto "${selectedMovement.concept}" fue eliminado correctamente.`,
         });
-        setIsDialogOpen(false); // Cierra el diálogo
-        setSelectedMovement(null); // Resetea el estado
+        setIsDialogOpen(false);
+        setSelectedMovement(null);
       } catch (error) {
         console.error('Error al eliminar:', error);
         toast({
@@ -86,7 +84,7 @@ export default function IncomeOutcomeTable({
               <TableCell>
                 {new Date(parseInt(movement.date)).toLocaleDateString()}
               </TableCell>
-              <TableCell>---------</TableCell>
+              <TableCell>{movement.user.name}</TableCell>
               <TableCell>
                 <EditIncomeOutcomeDialog
                   onEdit={onEdit(movement.id)}

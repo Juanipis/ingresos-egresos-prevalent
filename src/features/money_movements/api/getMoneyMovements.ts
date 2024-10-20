@@ -21,6 +21,11 @@ export const GET_MONEY_MOVEMENTS_QUERY = gql`
       date
       createdAt
       updatedAt
+      user {
+        id
+        name
+        email
+      }
     }
   }
 `;
