@@ -20,12 +20,41 @@ export const resolvers = {
         include: { moneyMovements: true },
       });
     },
-    moneyMovements: async (_: unknown, args: { email?: string }) => {
-      if (!args.email) {
-        return prisma.moneyMovement.findMany({});
+    moneyMovements: async (
+      _: unknown,
+      args: {
+        email?: string;
+        startDate?: string;
+        endDate?: string;
+        limit?: number;
+        offset?: number;
       }
+    ) => {
+      const filters: any = {};
+
+      if (args.email) {
+        filters.user = { email: args.email };
+      }
+
+      if (args.startDate || args.endDate) {
+        filters.date = {};
+        if (args.startDate) {
+          filters.date.gte = new Date(args.startDate); // Fecha de inicio
+        }
+        if (args.endDate) {
+          filters.date.lte = new Date(args.endDate); // Fecha de fin
+        }
+      }
+
+      // Paginación
+      const take = args.limit || 10; // Número máximo de resultados
+      const skip = args.offset || 0; // Desplazamiento
+
       return prisma.moneyMovement.findMany({
-        where: { user: { email: args.email } },
+        where: filters,
+        take: take,
+        skip: skip,
+        orderBy: { date: 'desc' }, // Ordenar por fecha descendente
       });
     },
     moneyMovement: async (_: unknown, args: { id: string }) => {

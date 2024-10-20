@@ -45,6 +45,8 @@ export default function IncomeOutcomeTable({
     setIsDialogOpen(true); // Abre el diálogo
   };
 
+  console.log('moneyMovements:', moneyMovements);
+
   const handleConfirmDelete = async () => {
     if (selectedMovement) {
       try {
@@ -84,7 +86,7 @@ export default function IncomeOutcomeTable({
               <TableCell>
                 {new Date(parseInt(movement.date)).toLocaleDateString()}
               </TableCell>
-              <TableCell>{movement.user.name}</TableCell>
+              <TableCell>---------</TableCell>
               <TableCell>
                 <EditIncomeOutcomeDialog
                   onEdit={onEdit(movement.id)}

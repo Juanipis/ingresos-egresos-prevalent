@@ -25,7 +25,13 @@ export const typeDefs = gql`
   type Query {
     users: [User!]!
     user(id: String!): User
-    moneyMovements(email: String): [MoneyMovement!]!
+    moneyMovements(
+      email: String
+      startDate: String # Filtro de fecha de inicio
+      endDate: String # Filtro de fecha de fin
+      limit: Int # Limitar el número de registros
+      offset: Int # Paginación por desplazamiento
+    ): [MoneyMovement!]!
     moneyMovement(id: String!): MoneyMovement
   }
 
