@@ -1,5 +1,5 @@
 import Layout from '@/components/layout';
-import MoneyMovementsBarChart from '@/components/reports/reports';
+import MoneyMovementsBarChart from '@/components/reports/MoneyMovementsBarChart';
 
 export default function Reports() {
   return (
