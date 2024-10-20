@@ -47,15 +47,21 @@ export const resolvers = {
       }
 
       // Paginación
-      const take = args.limit || 10; // Número máximo de resultados
-      const skip = args.offset || 0; // Desplazamiento
 
-      return prisma.moneyMovement.findMany({
-        where: filters,
-        take: take,
-        skip: skip,
-        orderBy: { date: 'desc' }, // Ordenar por fecha descendente
-      });
+      const skip = args.offset || 0; // Desplazamiento
+      if (args.limit) {
+        return prisma.moneyMovement.findMany({
+          where: filters,
+          take: args.limit,
+          skip: skip,
+          orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+        });
+      } else {
+        return prisma.moneyMovement.findMany({
+          where: filters,
+          orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+        });
+      }
     },
     moneyMovement: async (_: unknown, args: { id: string }) => {
       return prisma.moneyMovement.findUnique({

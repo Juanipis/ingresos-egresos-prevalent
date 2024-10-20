@@ -3,30 +3,29 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_MONEY_MOVEMENTS_QUERY } from '../api/getMoneyMovements';
 import { CREATE_MONEY_MOVEMENT_MUTATION } from '../api/createMoneyMovement';
-import { MoneyMovement } from '../types'; // Importamos el tipo
+import { MoneyMovement } from '../types';
 import { UPDATE_MONEY_MOVEMENT_MUTATION } from '../api/updateMoneyMovement';
 import { DELETE_MONEY_MOVEMENT_MUTATION } from '../api/deleteMoneyMovement';
 
 interface MoneyMovementsArgs {
-  email?: string; // Opcional
-  startDate?: string; // Opcional, tipo string (ISO date)
-  endDate?: string; // Opcional, tipo string (ISO date)
-  limit?: number; // Opcional, con un valor por defecto
-  offset?: number; // Opcional, con un valor por defecto
+  email?: string;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export const useMoneyMovements = ({
   email,
   startDate,
   endDate,
-  limit = 10,
-  offset = 0,
+  limit,
+  offset,
 }: MoneyMovementsArgs) => {
-  const { loading, error, data, fetchMore } = useQuery<{
+  const { loading, error, data, refetch } = useQuery<{
     moneyMovements: MoneyMovement[];
   }>(GET_MONEY_MOVEMENTS_QUERY, {
     variables: { email, startDate, endDate, limit, offset },
-    skip: !email && email !== undefined, // Solo ejecuta la consulta si no es undefined
   });
 
   const [createMoneyMovement] = useMutation(CREATE_MONEY_MOVEMENT_MUTATION);
@@ -65,12 +64,8 @@ export const useMoneyMovements = ({
     });
   };
 
-  const loadMoreMoneyMovements = () => {
-    fetchMore({
-      variables: {
-        offset: data?.moneyMovements.length || 0,
-      },
-    });
+  const refetchMoneyMovements = (variables: MoneyMovementsArgs) => {
+    refetch(variables); // Esto permite hacer una consulta cuando cambian las fechas
   };
 
   return {
@@ -80,6 +75,6 @@ export const useMoneyMovements = ({
     createMoneyMovementRecord,
     updateMoneyMovementRecord,
     deleteMoneyMovementRecord,
-    loadMoreMoneyMovements,
+    refetchMoneyMovements, // Exponemos la función refetch para que pueda ser llamada cuando cambian los filtros
   };
 };
