@@ -41,7 +41,7 @@ export function getChartData(groupedData: GroupedDataItem[], viewMode: string) {
         labels: groupedData.map((item) => item.label),
         datasets: [
           {
-            label: 'Net Amount',
+            label: 'Montos netos',
             data: groupedData.map((item) => item.totalAmount),
             backgroundColor: groupedData.map((item) =>
               item.totalAmount >= 0
@@ -75,7 +75,7 @@ export function getChartData(groupedData: GroupedDataItem[], viewMode: string) {
         labels: groupedData.map((item) => item.label),
         datasets: [
           {
-            label: 'Outcomes',
+            label: 'Egresos',
             data: groupedData.map((item) => Math.abs(item.outcomes)),
             backgroundColor: 'rgba(255, 99, 132, 0.6)',
             borderColor: 'rgba(255, 99, 132, 1)',
@@ -89,14 +89,14 @@ export function getChartData(groupedData: GroupedDataItem[], viewMode: string) {
         labels: groupedData.map((item) => item.label),
         datasets: [
           {
-            label: 'Incomes',
+            label: 'Ingresos',
             data: groupedData.map((item) => item.incomes),
             backgroundColor: 'rgba(75, 192, 192, 0.6)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1,
           },
           {
-            label: 'Outcomes',
+            label: 'Egresos',
             data: groupedData.map((item) => Math.abs(item.outcomes)),
             backgroundColor: 'rgba(255, 99, 132, 0.6)',
             borderColor: 'rgba(255, 99, 132, 1)',

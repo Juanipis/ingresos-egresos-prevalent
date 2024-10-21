@@ -9,6 +9,7 @@ export const groupBy = (data: MoneyMovement[], groupBy: string) => {
   const groupedData: {
     [key: string]: { totalAmount: number; incomes: number; outcomes: number };
   } = {};
+
   data.forEach((item) => {
     const date = parseDate(item.date);
     let groupKey = '';
@@ -62,8 +63,33 @@ export const groupBy = (data: MoneyMovement[], groupBy: string) => {
     groupedData[groupKey].totalAmount += item.amount;
   });
 
-  return Object.keys(groupedData).map((key) => ({
-    label: key,
-    ...groupedData[key],
-  }));
+  const sortedData = Object.keys(groupedData)
+    .sort((a, b) => {
+      const [yearA, partA] = a.split('-');
+      const [yearB, partB] = b.split('-');
+
+      if (yearA !== yearB) {
+        return parseInt(yearA) - parseInt(yearB);
+      }
+
+      if (partA.includes('Q') && partB.includes('Q')) {
+        return (
+          parseInt(partA.replace('Q', '')) - parseInt(partB.replace('Q', ''))
+        );
+      }
+
+      if (partA.includes('S') && partB.includes('S')) {
+        return (
+          parseInt(partA.replace('S', '')) - parseInt(partB.replace('S', ''))
+        );
+      }
+
+      return partA.localeCompare(partB);
+    })
+    .map((key) => ({
+      label: key,
+      ...groupedData[key],
+    }));
+
+  return sortedData;
 };
