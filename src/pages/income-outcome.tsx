@@ -19,11 +19,8 @@ export default function IncomeOutcome() {
   const [endDate, setEndDate] = useState<string | undefined>(undefined);
   const [emailFilter, setEmailFilter] = useState<string | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1); // Paginación comienza en la página 1
-  const limit = 10; // Definimos cuántos elementos por página
-
-  // Usamos el hook pasándole los filtros
+  const limit = 10;
   const {
-    loading,
     moneyMovements,
     createMoneyMovementRecord,
     updateMoneyMovementRecord,

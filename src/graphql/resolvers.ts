@@ -9,6 +9,11 @@ interface GraphQLContext {
   };
 }
 
+interface MoneyMovementFilters {
+  user?: { email: string };
+  date?: { gte?: Date; lte?: Date };
+}
+
 export const resolvers = {
   Query: {
     users: async () => {
@@ -30,7 +35,7 @@ export const resolvers = {
         offset?: number;
       }
     ) => {
-      const filters: any = {};
+      const filters: MoneyMovementFilters = {};
 
       if (args.email) {
         filters.user = { email: args.email };
