@@ -9,6 +9,11 @@ interface GraphQLContext {
   };
 }
 
+interface MoneyMovementFilters {
+  user?: { email: string };
+  date?: { gte?: Date; lte?: Date };
+}
+
 export const resolvers = {
   Query: {
     users: async () => {
@@ -20,13 +25,48 @@ export const resolvers = {
         include: { moneyMovements: true },
       });
     },
-    moneyMovements: async (_: unknown, args: { email?: string }) => {
-      if (!args.email) {
-        return prisma.moneyMovement.findMany({});
+    moneyMovements: async (
+      _: unknown,
+      args: {
+        email?: string;
+        startDate?: string;
+        endDate?: string;
+        limit?: number;
+        offset?: number;
       }
-      return prisma.moneyMovement.findMany({
-        where: { user: { email: args.email } },
-      });
+    ) => {
+      const filters: MoneyMovementFilters = {};
+
+      if (args.email) {
+        filters.user = { email: args.email };
+      }
+
+      if (args.startDate || args.endDate) {
+        filters.date = {};
+        if (args.startDate) {
+          filters.date.gte = new Date(args.startDate); // Fecha de inicio
+        }
+        if (args.endDate) {
+          filters.date.lte = new Date(args.endDate); // Fecha de fin
+        }
+      }
+
+      // Paginación
+
+      const skip = args.offset || 0; // Desplazamiento
+      if (args.limit) {
+        return prisma.moneyMovement.findMany({
+          where: filters,
+          take: args.limit,
+          skip: skip,
+          orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+        });
+      } else {
+        return prisma.moneyMovement.findMany({
+          where: filters,
+          orderBy: { date: 'desc' }, // Ordenar por fecha descendente
+        });
+      }
     },
     moneyMovement: async (_: unknown, args: { id: string }) => {
       return prisma.moneyMovement.findUnique({
