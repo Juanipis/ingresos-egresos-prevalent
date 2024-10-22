@@ -115,6 +115,19 @@ export const resolvers = {
       await prisma.moneyMovement.delete({ where: { id } });
       return true;
     },
+    updateUser: async (
+      _: unknown,
+      { id, name, role }: { id: string; name?: string; role?: string }
+    ) => {
+      return prisma.user.update({
+        where: { id },
+        data: { name, role },
+      });
+    },
+    deleteUser: async (_: unknown, { id }: { id: string }) => {
+      await prisma.user.delete({ where: { id } });
+      return true;
+    },
   },
   MoneyMovement: {
     user: async (parent: { userId: string }) => {

@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import Layout from '@/components/layout';
 
 export default function UsersPage() {
   const { loading, error, users, updateUserDetails, deleteUserById } =
@@ -59,7 +60,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div>
+    <Layout>
       <h2 className="text-xl font-semibold mb-4">Gestión de Usuarios</h2>
       {loading && <p>Cargando...</p>}
       {error && <p>Error: {error.message}</p>}
@@ -117,6 +118,6 @@ export default function UsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </Layout>
   );
 }

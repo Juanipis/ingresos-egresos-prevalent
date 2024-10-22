@@ -51,7 +51,6 @@ export default function IncomeOutcome() {
   };
 
   const handleDelete = async (id: string) => {
-    console.log('Eliminando registro con id:', id);
     try {
       await deleteMoneyMovementRecord(id);
     } catch (error) {
@@ -75,7 +74,6 @@ export default function IncomeOutcome() {
 
   // Determinar si el botón "Next" debe estar deshabilitado
   const hasNextPage = moneyMovements.length === limit; // Si obtenemos menos de "limit", no hay más páginas
-  console.log('moneyMovements:', moneyMovements);
   return (
     <Layout>
       <div className="p-4 space-y-4">
