@@ -16,10 +16,16 @@ interface MoneyMovementFilters {
 
 export const resolvers = {
   Query: {
-    users: async () => {
+    users: async (context: GraphQLContext) => {
+      if (context.session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+      }
       return prisma.user.findMany({});
     },
-    user: async (_: unknown, args: { id: string }) => {
+    user: async (_: unknown, args: { id: string }, context: GraphQLContext) => {
+      if (context.session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+      }
       return prisma.user.findUnique({
         where: { id: args.id },
         include: { moneyMovements: true },
@@ -85,6 +91,10 @@ export const resolvers = {
       }: { amount: number; concept: string; date: string },
       context: GraphQLContext
     ) => {
+      if (context.session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+      }
+
       const user = await prisma.user.findUnique({
         where: { email: context.session.user.email },
       });
@@ -104,20 +114,39 @@ export const resolvers = {
     },
     updateMoneyMovement: async (
       _: unknown,
-      { id, amount, concept }: { id: string; amount?: number; concept?: string }
+      {
+        id,
+        amount,
+        concept,
+      }: { id: string; amount?: number; concept?: string },
+      context: GraphQLContext
     ) => {
+      if (context.session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+      }
       return prisma.moneyMovement.update({
         where: { id },
         data: { amount, concept },
       });
     },
-    deleteMoneyMovement: async (_: unknown, { id }: { id: string }) => {
+    deleteMoneyMovement: async (
+      _: unknown,
+      { id }: { id: string },
+      context: GraphQLContext
+    ) => {
+      if (context.session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+      }
       await prisma.moneyMovement.delete({ where: { id } });
       return true;
     },
   },
   MoneyMovement: {
-    user: async (parent: { userId: string }) => {
+    user: async (parent: { userId: string }, context: GraphQLContext) => {
+      if (context.session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+      }
+
       return prisma.user.findUnique({ where: { id: parent.userId } });
     },
   },

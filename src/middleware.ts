@@ -6,13 +6,15 @@ export default auth((req) => {
     return Response.redirect(newUrl);
   }
 
-  //protect /users, reports, if the user is not an admin
+  //protect /users, /income-outcome, if the user is not an admin
   if (
     req.auth &&
     !req.auth.user.role.includes('admin') &&
-    req.nextUrl.pathname.startsWith('/users')
+    (req.nextUrl.pathname.startsWith('/users') ||
+      req.nextUrl.pathname.startsWith('/income-outcome'))
   ) {
-    return new Response('Unauthorized', { status: 401 });
+    const newUrl = new URL('/', req.nextUrl.origin);
+    return Response.redirect(newUrl);
   }
 });
 export const config = {

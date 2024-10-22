@@ -1,4 +1,3 @@
-// components/Layout.tsx
 import { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion'; // Import Framer Motion
