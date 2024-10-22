@@ -28,7 +28,7 @@ export default function Home() {
 
   // Si no hay sesión, muestra la página de inicio
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-green-100">
+    <div className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-green-100">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">

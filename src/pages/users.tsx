@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Layout from '@/components/layout';
 import { UserForm } from '@/components/users/UserForm';
 import { UserTable } from '@/components/users/UserTable';
 import { useUsers } from '@/features/users/hooks/useUsers';
@@ -60,7 +59,7 @@ export default function UsersPage() {
   };
 
   return (
-    <Layout>
+    <div>
       <h2 className="text-xl font-semibold mb-4">Gestión de Usuarios</h2>
       {loading && <p>Cargando...</p>}
       {error && <p>Error: {error.message}</p>}
@@ -118,6 +117,6 @@ export default function UsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Layout>
+    </div>
   );
 }
